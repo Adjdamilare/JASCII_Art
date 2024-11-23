@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASCII Studio • Transform Images into Art</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #000;
+        --secondary-color: #86868b;
+        --accent-color: #2997ff;
+        --background-light: #fbfbfd;
+        --font-sf: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+          Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      }
+
+      body {
+        font-family: var(--font-sf);
+        background-color: var(--background-light);
+        color: var(--primary-color);
+        line-height: 1.5;
+      }
+
+      .navbar {
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .hero-section {
+        padding: 120px 0;
+        text-align: center;
+      }
+
+      .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #000 0%, #333 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero-subtitle {
+        font-size: 1.5rem;
+        color: var(--secondary-color);
+        margin-bottom: 2rem;
+      }
+
+      .upload-section {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease;
+      }
+
+      .upload-section:hover {
+        transform: translateY(-5px);
+      }
+
+      .drop-zone {
+        border: 2px dashed #dee2e6;
+        border-radius: 15px;
+        padding: 3rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .drop-zone:hover {
+        border-color: var(--accent-color);
+        background-color: rgba(41, 151, 255, 0.05);
+      }
+
+      .drop-zone.dragover {
+        border-color: var(--accent-color);
+        background-color: rgba(41, 151, 255, 0.1);
+      }
+
+      .preview-section {
+        display: none;
+        margin-top: 2rem;
+      }
+
+      .result-section {
+        display: none;
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-top: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .ascii-output {
+        font-family: monospace;
+        white-space: pre;
+        overflow-x: auto;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        line-height: 0.7rem;
+      }
+
+      .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        background-color: #007aff;
+        transform: translateY(-2px);
+      }
+
+      .settings-panel {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        display: none;
+      }
+
+      .range-slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 4px;
+        border-radius: 2px;
+        background: #dee2e6;
+        outline: none;
+      }
+
+      .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .range-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+      }
+
+      footer {
+        padding: 2rem 0;
+        background-color: white;
+        margin-top: 4rem;
+      }
+
+      .loading-spinner {
+        display: none;
+        margin: 2rem auto;
+      }
+
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">JASCII Studio</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#features">Features</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#about">About</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <h1 class="hero-title">Transform Your Images Into ASCII Art</h1>
+        <p class="hero-subtitle">
+          Create stunning text-based artwork with a single click
+        </p>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container mb-5">
+      <!-- Upload Section -->
+      <div class="upload-section">
+        <div class="drop-zone" id="dropZone">
+          <p class="mb-0">Drop your image here or click to upload</p>
+          <input type="file" id="fileInput" accept="image/*" class="d-none" />
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section" id="previewSection">
+          <img id="imagePreview" class="img-fluid rounded" alt="Preview" />
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+          <h5 class="mb-3">Customize Your ASCII Art</h5>
+          <div class="mb-3">
+            <label for="widthSlider" class="form-label">Output Width</label>
+            <input
+              type="range"
+              class="range-slider"
+              id="widthSlider"
+              min="30"
+              max="150"
+              value="80"
+            />
+            <div class="d-flex justify-content-between">
+              <span>Narrow</span>
+              <span>Wide</span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="contrastSlider" class="form-label">Contrast</label>
+            <input
+              type="range"
+              class="range-slider"
+              id="contrastSlider"
+              min="0"
+              max="200"
+              value="100"
+            />
+            <div class="d-flex justify-content-between">
+              <span>Low</span>
+              <span>High</span>
+            </div>
+          </div>
+          <button class="btn btn-primary w-100" id="convertBtn">
+            Convert to ASCII
+          </button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner text-center" id="loadingSpinner">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Section -->
+      <div class="result-section" id="resultSection">
+        <h4 class="mb-3">Your ASCII Masterpiece</h4>
+        <div class="ascii-output" id="asciiOutput"></div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-primary" id="copyBtn">
+            Copy to Clipboard
+          </button>
+          <button class="btn btn-outline-primary" id="downloadBtn">
+            Download as Text
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-muted">
+      <div class="container">
+        <p>By Adeosun Oluwadamilare Joshua</p>
+        <p class="mb-0">© 2024 JASCII Studio. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // ASCII characters from dark to light
+      const ASCII_CHARS = "@%#*+=-:. "; // More characters can be added for more detail
+
+      // DOM Elements
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("fileInput");
+      const previewSection = document.getElementById("previewSection");
+      const imagePreview = document.getElementById("imagePreview");
+      const settingsPanel = document.getElementById("settingsPanel");
+      const widthSlider = document.getElementById("widthSlider");
+      const contrastSlider = document.getElementById("contrastSlider");
+      const convertBtn = document.getElementById("convertBtn");
+      const loadingSpinner = document.getElementById("loadingSpinner");
+      const resultSection = document.getElementById("resultSection");
+      const asciiOutput = document.getElementById("asciiOutput");
+      const copyBtn = document.getElementById("copyBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
+
+      // Event Listeners
+      dropZone.addEventListener("click", () => fileInput.click());
+      dropZone.addEventListener("dragover", handleDragOver);
+      dropZone.addEventListener("dragleave", handleDragLeave);
+      dropZone.addEventListener("drop", handleDrop);
+      fileInput.addEventListener("change", handleFileSelect);
+      convertBtn.addEventListener("click", convertToAscii);
+      copyBtn.addEventListener("click", copyToClipboard);
+      downloadBtn.addEventListener("click", downloadAscii);
+
+      // Drag and Drop Handlers
+      function handleDragOver(e) {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      }
+
+      function handleDragLeave(e) {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          handleFile(file);
+        }
+      }
+
+      function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+          handleFile(file);
+        }
+      }
+
+      function handleFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imagePreview.src = e.target.result;
+          previewSection.style.display = "block";
+          settingsPanel.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // ASCII Conversion
+      function convertToAscii() {
+        loadingSpinner.style.display = "block";
+        convertBtn.disabled = true;
+
+        // Create canvas and context
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+
+        img.onload = () => {
+          // Calculate dimensions
+          const width = parseInt(widthSlider.value);
+          const height = Math.floor((width * (img.height / img.width)) / 2);
+
+          canvas.width = width;
+          canvas.height = height;
+
+          // Apply contrast
+          const contrast = parseInt(contrastSlider.value) / 100;
+          ctx.filter = `contrast(${contrast})`;
+
+          // Draw image
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to ASCII
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const asciiArt = convertImageDataToAscii(imageData);
+
+          // Display result
+          asciiOutput.textContent = asciiArt;
+          resultSection.style.display = "block";
+          loadingSpinner.style.display = "none";
+          convertBtn.disabled = false;
+
+          // Scroll to result
+          resultSection.scrollIntoView({ behavior: "smooth" });
+        };
+
+        img.src = imagePreview.src;
+      }
+
+      // Function to convert image data to ASCII
+      function convertImageDataToAscii(imageData) {
+        let asciiArt = "";
+        for (let i = 0; i < imageData.height; i++) {
+          for (let j = 0; j < imageData.width; j++) {
+            const pixel = getPixelBrightness(imageData, j, i);
+            const char = getAsciiChar(pixel);
+            asciiArt += char;
+          }
+          asciiArt += "\n";
+        }
+        return asciiArt;
+      }
+
+      // Improved brightness calculation considering luminance
+      function getPixelBrightness(imageData, x, y) {
+        const i = (y * imageData.width + x) * 4;
+        const r = imageData.data[i];
+        const g = imageData.data[i + 1];
+        const b = imageData.data[i + 2];
+        // Calculate luminance for more accurate representation
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b; // Standard luminance formula
+      }
+
+      // Function to map brightness to ASCII character
+      function getAsciiChar(brightness) {
+        const charIndex = Math.floor(
+          (brightness / 255) * (ASCII_CHARS.length - 1)
+        );
+        return ASCII_CHARS[charIndex < 0 ? 0 : charIndex]; // Ensure index is non-negative
+      }
+
+      // Utility Functions
+      function copyToClipboard() {
+        navigator.clipboard.writeText(asciiOutput.textContent).then(() => {
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => {
+            copyBtn.textContent = "Copy to Clipboard";
+          }, 2000);
+        });
+      }
+
+      function downloadAscii() {
+        const blob = new Blob([asciiOutput.textContent], {
+          type: "text/plain",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ascii-art.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>
